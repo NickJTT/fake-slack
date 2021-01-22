@@ -1,25 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
+import firebase, { auth } from './services/firebase';
+import Home from './components/Home';
+import SignIn from './components/SignIn';
+import Nav from './components/Nav';
+import { useState, useEffect } from 'react';
+import User from './components/User';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+export default function App() {
+  const [user, setUser] = useState(null);
+
+  const signIn = async () => {
+    try {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      const result = await auth.signInWithPopup(provider);
+      setUser({ photoURL: result.user.photoURL, email: result.user.email, name: result.user.displayName });
+    } catch (exception) {
+      console.error(exception); 
+    }
+  }
+
+  const signOut = async () => {
+    auth.signOut();
+  }
+
+  useEffect(() => {
+    auth.onAuthStateChanged(user => user ? setUser({ photoURL: user.photoURL, email: user.email, name: user.displayName }) : setUser(null));
+  }, []);
+
+  return <>
+    <Router>
+      <Nav user = { user } signOut = { signOut }/>
+      <Route exact path = '/' component = { Home }/>
+      <Route path = '/login' component = { () => <SignIn user = { user } signIn = { signIn }/> }/>
+    </Router>
+    { user && <User user = { user } signOut = { signOut }/> }
+  </>;
 }
-
-export default App;

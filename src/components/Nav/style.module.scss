@@ -1,0 +1,16 @@
+div.nav {
+  display: flex;
+  font-family: Arial;
+  border: solid 1px black;
+
+  span {
+    flex-grow: 1;
+  }
+
+  a, p {
+    padding: 16px;
+    text-decoration: none;
+    color: black;
+    cursor: pointer;
+  }
+}
